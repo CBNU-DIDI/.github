@@ -6,7 +6,7 @@
 👤 **박미라**: 팀장, 프로젝트 총괄<br>
  🔗 박미라 깃허브 <https://github.com/miracle-mira>
 
-👤 **장정환**: 웹(프론트,백),DID,VC,VP 발급 및 블록체인 구축<br>
+👤 **장정환**: 웹(SSR),DID,VC,VP 발급 및 블록체인 구축<br>
  🔗 장정환 깃허브 <https://github.com/jjhwan-h>
 
 👤 **하지민**: SSI앱 개발<br>
