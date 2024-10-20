@@ -1,12 +1,13 @@
 # 🗳️ DIDI블록
 ## DID와 블록체인을 이용한 온라인 투표 시스템 
 
+
 ### 👥 팀원
 ---
 👤 **박미라**: 팀장, 프로젝트 총괄<br>
  🔗 박미라 깃허브 <https://github.com/miracle-mira>
 
-👤 **장정환**: 웹(SSR),DID,VC,VP 발급 및 블록체인 구축<br>
+👤 **장정환**: 웹, 투표시스템, DID, VC, VP 발급 및 블록체인 구축<br>
  🔗 장정환 깃허브 <https://github.com/jjhwan-h>
 
 👤 **하지민**: SSI앱 개발<br>
@@ -29,48 +30,142 @@
   
 ### ◼️ 개발 환경
 ---
-🖥️ 통합 개발 환경: **Visual Studio Code**
-
-🖥️ Progrmming Language: : ****
-
-🖥️ 데이터 베이스: ****
+**node.js v18.19.0**<br>
+**go v1.22**<br>
+**mysql v8.3.0**<br>
+**postgres v13**<br>
+**aries-framework v0.4.2**<br>
+**hyperledger v0.1.3**<br>
+**Test Indy Network**<br>
 
 ### ◼️ 주요 기능
 ---
 |기능|설명|
 |------|---|
-|회원가입|1. 이메일/비밀번호/이름/전화번호 입력 <br>2. DID 발급<br> 3. SSI앱 설치<br> 4. SSI앱 연결: 회원가입 페이지에서 QR이 생성되면 QR을 통해 DID 번호 및 개인정보가 가공된 VC가 사용자 SSI앱에 저장된다.|
-|투표방법|[유권자 지정한 경우]<br> 1. 유권자 지정<br> - 투표 관리자가 유권자 이름과 이메일을 등록한다.<br> - 등록한 정보는 자동으로 json파일로 변환되어 데이터베이스에 저장된다. 이때, 유권자는 임시 회원가입이 된다. <br>2. 유권자 확인 방법 - 유권자한테 '유권자 등록 완료' 이메일이 전송된다.<br> - 유권자는 마이페이지에서 '투표방 발급하기' 버튼을 눌러, 투표에 대한 권한을 가진다.<br>3. 투표권 행사 방법 <br> 1. 투표방에 올라와있는 QR코드를 SSI앱과 연결한다. <br>2. 사용자는 원하는 항목에 투표한다.<br>3. 해당 투표방에 대한 유권자가 가지고 있는 VC를 VP로 가공시킨 것이 해당 투표방이 발급한 내용과 일치하면 본인인증이 완료된 것이므로 투표 내용을 암호화하여 블록체인에 저장한다. |
-|개표방법|1. 투표방 생성 시 투표종료 시간을 투표스케줄러 서버로 전송.<br> 2. 투표종료 서버는 투표 종료시간을 데이터베이스에 저장한다.<br> 3. 투표스케줄러 서버는 주기적으로(10분) 데이터베이스에 저장된 투표종료시간을 점검.<br> 4. 투표 종료시간이 넘은 투표방은 메세지큐를 통해 개표서버로 전달.<br> 5. 개표서버는 블록체인에 있는 해당 투표방 정보를 가져와 개표 후 웹서버로 전달한다.<br>
-|SSI앱|1. VC저장 및 해당 VC를 VP로 발급<br>2. 접근 가능한 유권자인지 확인|
-|부가기능|1. 투표종류는 현재 '후보자 투표'만 가능하나 추후 찬반투표와 안건투표를 추가할 예정 <br>2. 투표 목록은 로그인하지 않아도 볼 수 있음|
+|회원가입| 1. 사용자 기기에서 DID발급한다.<br> 2. 이메일/비밀번호/이름/DID 입력한다. <br> 3. 이메일 인증한다.<br> 
+|방생성|1. 방정보입력(방이름, 투표시작 시간, 투표종료 시간, 설명)한다.<br> 2. 후보자 정보 입력(이름, 나이 , 성별, 공약)한다.<br>3. 유권자 정보 입력(아이디, 이메일)한다.<br> 4. 회원가입 되지 않은 유권자는 preUser로 등록한다.<br> 5. 유권자의 VC발급여부를 확인하는 레코드생성한다.<br> 6. 중복된 유권자 확인한다.<br> 7. 유권자 이메일로 유권자 등록메일 발송한다.<br> 8. Room-Scheduler로 room-id, 투표종료 시간 전송한다.<br> 9. Room-Scheduler의 DB에 저장한다.<br>
+|투표권(VC)발급|1. 마이페이지에서 발급가능한 VC확인한다.<br>2. 발급버튼을 누르면 [로그인 검증] 3. [DID Auth]<br>4.[VC 중복 발급 확인]<br>5.VC발급확인<br>
+|투표|1.투표방에 접속한다.<br>2.QR코드, URL를 사용자기기에 입력하여 서버와 연결한다.<br>3.로그인검증한다.<br>4.VC발급 주체 검증한다.<br>5.중복투표 검증한다.<br>6.사용자는 원하는 항목에 투표한다.<br>7.block chain으로 투표값 전송한다.
+|개표방법|1. 투표방 생성 시 투표종료 시간을 스케줄러 서버로 전송한다.<br> 2. 스케줄러 서버는 투표 종료시간을 데이터베이스에 저장한다.<br> 3. 스케줄러 서버는 주기적으로(30분) 데이터베이스에 저장된 투표종료시간을 점검한다.<br> 4. 투표 종료시간이 넘은 투표방은 메세지큐를 통해 개표서버로 전달한다.<br> 5. 개표서버는 블록체인에 있는 해당 투표방 정보를 가져와 개표 후 웹서버로 전달한다.<br>
 
 ### ◼️ 프로젝트 아키텍쳐
-![image](https://github.com/user-attachments/assets/e4e23322-b048-4a90-b382-ac3914a40b6f)
+![image](https://github.com/user-attachments/assets/65fb9779-132c-414a-ab82-ac982e89c0cd)
+
 
 
 
 ### ◼️ 시스템 흐름도
----
+**방생성**
+```mermaid
+%%방생성
+graph LR
+  start(((Start))) --> id1{로그인여부}
+  id1 -- yes --> id2[/방정보 입력/]
+  id1 -- no --> id3(((End)))
+  id2 --> id4{투표 시작/종료 시간
+  유효성 체크}
+  id4 -- no --> id2
+  id4 -- yes --> id5[/후보자정보 입력/]
+  id5 --> id6[/유권자정보 입력/]
+  id6 --> id7{유권자 중복 체크}
+  id7 -- no --> id6
+  id7 -- yes --> id8{유권자 회원가입 여부}
+  id8 -- no --> id9[Pre User로 생성]
+  id8 -- yes --> id10[VC 발급 레코드 추가]
+  id9 --> id10
+  id10 --> id11[방생성 #40;VOTING상태#41;]
+  id11 --> id12[Room-Scheduler로
+  방성성 정보 전송]
+  id11 --> id13[유권자 등록 이메일 발송]
+  id12 --> id14[Room-Scheduler DB에 저장]
+  id13 --> id15(((End)))
+  id14 -->id15
+  
+```
+**투표권(VC)발급**
+```mermaid
+graph LR
+%%투표권(VC)발급
+start(((Start))) --> id1[마이페이지 접속]
+id1 --> id2[로그인 검증]
+id2 --> id13[사용자 기기와 연결
+QR 또는 URL]
+id13 --> id3{DID Resolve}
+%%DID Auth과정
+id3 -- yes--> id4[사용자 Public key로 
+문자열 암호화]
+id3 -- no --> id5(((End)))
+id4 --> id6[사용자 기기로 암호화된 문자열 전달]
+id6 --> id7[Private키로 복호화 후 서버로 전달]
+id7 --> id8{DID Auth
+#40;복호화된 문자열 검증#41;}
+id8 -- no --> id9(((End)))
+id8 -- yes --> id10[VC발급여부 확인]
+id10 --> id11[VC발급]
+id11 --> id12(((End)))
 
+```
+**투표**
+```mermaid
+graph LR
+%%투표
+start(((Start))) --> id1[투표방 접속 시도]
+id1 --> id2{투표방 상태 확인}
+id2 -- VOTING --> id3[Room-Scheduler서버로 투표방 상태 요청]
+id2 -- END --> id4(((End)))
+id2 -- COUNTED --> id16[개표페이지]
+id3 --> id5{NTP서버 시간과 비교}
+id5 -- 종료 전 --> id6[투표방 접속]
+id5 -- 종료 후 --> id7[투표방 상태 END로 저장]
+id7 --> id8(((End)))
+id6 -->id9[사용자 기기와 연결
+QR또는 URL]
+id9 --> id10[VP요청]
+id10 --> id11[서버가 발급한것이 맞는지 확인]
+id11 -->id12[투표 정보 사용자 기기로 전달]
+id12 --> id13[투표값 서버로 전달]
+id13 --> id14[중복투표검증]
+id14 --> id15[block chain으로
+투표값 전송]
+```
+**투표 종료확인**
+```mermaid
+graph LR
+%%투표 종료시간 확인
+start(((Start))) --> id0[cronjob 시작]
+id0 --> id1[NTP 서버시간 불러오기]
+id1 --> id2[DB에서 투표방 시간 불러오기]
+id2 --> id3{NTP 서버시간과 종료시간비교}
+id3 -- 종료 전 --> id4[continue]
+id3 -- 종료 후 --> id5[메세지 큐로 투표방 id값 전송]
+id5 --> id6[Vote-Counter에서 
+읽을 준비가 되면 
+메세지큐에서 메세지 전송]
 
-### ◼️ 프로젝트 구성
----
+```
 
-
-### ◼️ 프로젝트 프로그램 설치방법 및 사용법
----
-
+**개표**
+```mermaid
+graph LR
+%%개표
+start(((Start))) --> id1[Vote-Counter에서 메세지 받음]
+id1-->id2[block chain으로 room-id전송]
+id2 --> id3[해당 room-id에 해당하는 block값들 전송]
+id3 --> id4[개표진행]
+id4 --> id5[웹서버로 개표값 전송]
+id5 --> id6[투표방 상태 COUNTED로 저장]
+id6 --> id7[투표값 저장]
+id7 --> id8(((End)))
+```
 
 ### ◼️ 참고 및 출처
----
-
-
-### ◼️ 버전 및 업데이트 정보
----
-
-
-### ◼️ FAQ
+**Credo-ts**<br>
+https://github.com/openwallet-foundation/credo-ts<br>
+**hyperledger/aries-askar**<br>
+https://github.com/hyperledger/aries-askar<br>
+**nomadcoders/nomadcoin**<br>
+https://github.com/nomadcoders/nomadcoin<br>
+### ◼️ 영상 및 사진
 ---
 
 
